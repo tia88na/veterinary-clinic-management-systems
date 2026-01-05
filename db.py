@@ -131,7 +131,26 @@ def get_next_id(table_name, id_column):
     Returns:
         int: Next available ID (max + 1), or 1 if table is empty
     """
+    # Whitelist of allowed table/column combinations for security
+    allowed_combinations = {
+        ('OWNERS', 'OwnerID'),
+        ('PETS', 'PetID'),
+        ('APPOINTMENTS', 'AppointmentID'),
+        ('VETERINARIANS', 'VetID'),
+        ('MEDICATIONS', 'MedicationID'),
+        ('TREATMENTS', 'TreatmentID'),
+        ('PRESCRIPTIONS', 'PrescriptionID'),
+        ('PAYMENTS', 'PaymentID'),
+        ('STAFF', 'StaffID'),
+    }
+    
+    # Validate against whitelist to prevent SQL injection
+    if (table_name, id_column) not in allowed_combinations:
+        print(f"Error: Invalid table/column combination: {table_name}.{id_column}")
+        return 1
+    
     try:
+        # Safe to use f-string here as we've validated against whitelist
         query = f"SELECT MAX({id_column}) as max_id FROM {table_name}"
         result = run_select(query)
         
