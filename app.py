@@ -46,12 +46,12 @@ with tab_insert:
             col1, col2 = st.columns(2)
             with col1:
                 owner_id = st.number_input("Owner ID", min_value=1, step=1, value=2000)
-                first_name = st.text_input("First Name*", max_length=100)
-                last_name = st.text_input("Last Name*", max_length=100)
-                address = st.text_input("Address", max_length=300)
+                first_name = st.text_input("First Name*")
+                last_name = st.text_input("Last Name*")
+                address = st.text_input("Address")
             with col2:
-                phone_no = st.text_input("Phone Number", max_length=15, placeholder="5301112233")
-                email = st.text_input("Email", max_length=100, placeholder="example@email.com")
+                phone_no = st.text_input("Phone Number", placeholder="5301112233")
+                email = st.text_input("Email", placeholder="example@email.com")
             
             submit_owner = st.form_submit_button("Add Owner")
             
@@ -83,13 +83,13 @@ with tab_insert:
                 col1, col2 = st.columns(2)
                 with col1:
                     pet_id = st.number_input("Pet ID", min_value=1, step=1, value=600)
-                    pet_name = st.text_input("Pet Name*", max_length=50)
-                    species = st.text_input("Species*", max_length=50, placeholder="Dog, Cat, Bird, etc.")
-                    breed = st.text_input("Breed", max_length=50)
+                    pet_name = st.text_input("Pet Name*")
+                    species = st.text_input("Species*", placeholder="Dog, Cat, Bird, etc.")
+                    breed = st.text_input("Breed")
                 with col2:
                     age = st.number_input("Age", min_value=0, max_value=50, step=1, value=1)
                     weight = st.number_input("Weight (kg)", min_value=0.0, max_value=999.99, step=0.1, value=5.0, format="%.2f")
-                    color = st.text_input("Color", max_length=50)
+                    color = st.text_input("Color")
                     
                     # Owner dropdown
                     owner_options = dict(zip(owners_df['OwnerName'], owners_df['OwnerID']))
@@ -185,8 +185,8 @@ with tab_update:
         st.subheader("Update Owner Contact Information")
         with st.form("update_owner_form"):
             owner_id_update = st.number_input("Owner ID*", min_value=1, step=1, value=1001)
-            new_phone = st.text_input("New Phone Number", max_length=15, placeholder="Leave empty to keep current")
-            new_email = st.text_input("New Email", max_length=100, placeholder="Leave empty to keep current")
+            new_phone = st.text_input("New Phone Number", placeholder="Leave empty to keep current")
+            new_email = st.text_input("New Email", placeholder="Leave empty to keep current")
             
             submit_update_owner = st.form_submit_button("Update Owner Contact")
             
