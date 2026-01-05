@@ -28,8 +28,9 @@ A Streamlit-based web application for managing veterinary clinic operations incl
 
 ## Installation
 
-1. **Clone the repository**
+1. **Clone the repository** (if not already cloned)
    ```bash
+   git clone https://github.com/tia88na/veterinary-clinic-management-systems.git
    cd veterinary-clinic-management-systems
    ```
 
