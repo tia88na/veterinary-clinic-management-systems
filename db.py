@@ -120,6 +120,30 @@ def run_execute(query, params=None):
             connection.close()
 
 
+def get_next_id(table_name, id_column):
+    """
+    Get the next available ID for a table by finding the max existing ID.
+    
+    Args:
+        table_name (str): Name of the table
+        id_column (str): Name of the ID column
+    
+    Returns:
+        int: Next available ID (max + 1), or 1 if table is empty
+    """
+    try:
+        query = f"SELECT MAX({id_column}) as max_id FROM {table_name}"
+        result = run_select(query)
+        
+        if result is not None and not result.empty and result['max_id'].iloc[0] is not None:
+            return int(result['max_id'].iloc[0]) + 1
+        else:
+            return 1
+    except Exception as e:
+        print(f"Error getting next ID: {e}")
+        return 1
+
+
 def test_connection():
     """
     Test the database connection.

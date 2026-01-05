@@ -42,10 +42,14 @@ with tab_insert:
     # --- INSERT OWNER ---
     with insert_owner_tab:
         st.subheader("Add New Owner")
+        
+        # Get next available Owner ID
+        next_owner_id = db.get_next_id("OWNERS", "OwnerID")
+        
         with st.form("insert_owner_form"):
             col1, col2 = st.columns(2)
             with col1:
-                owner_id = st.number_input("Owner ID", min_value=1, step=1, value=2000)
+                owner_id = st.number_input("Owner ID", min_value=1, step=1, value=next_owner_id, help="Suggested next ID based on existing data")
                 first_name = st.text_input("First Name*")
                 last_name = st.text_input("Last Name*")
                 address = st.text_input("Address")
@@ -79,10 +83,13 @@ with tab_insert:
         owners_df = db.run_select("SELECT OwnerID, CONCAT(FirstName, ' ', LastName) AS OwnerName FROM OWNERS ORDER BY OwnerID")
         
         if owners_df is not None and not owners_df.empty:
+            # Get next available Pet ID
+            next_pet_id = db.get_next_id("PETS", "PetID")
+            
             with st.form("insert_pet_form"):
                 col1, col2 = st.columns(2)
                 with col1:
-                    pet_id = st.number_input("Pet ID", min_value=1, step=1, value=600)
+                    pet_id = st.number_input("Pet ID", min_value=1, step=1, value=next_pet_id, help="Suggested next ID based on existing data")
                     pet_name = st.text_input("Pet Name*")
                     species = st.text_input("Species*", placeholder="Dog, Cat, Bird, etc.")
                     breed = st.text_input("Breed")
@@ -126,10 +133,13 @@ with tab_insert:
         owners_df = db.run_select("SELECT OwnerID, CONCAT(FirstName, ' ', LastName) AS OwnerName FROM OWNERS ORDER BY OwnerID")
         
         if pets_df is not None and not pets_df.empty and vets_df is not None and not vets_df.empty and owners_df is not None and not owners_df.empty:
+            # Get next available Appointment ID
+            next_appt_id = db.get_next_id("APPOINTMENTS", "AppointmentID")
+            
             with st.form("insert_appointment_form"):
                 col1, col2 = st.columns(2)
                 with col1:
-                    appt_id = st.number_input("Appointment ID", min_value=1, step=1, value=7000)
+                    appt_id = st.number_input("Appointment ID", min_value=1, step=1, value=next_appt_id, help="Suggested next ID based on existing data")
                     
                     # Pet dropdown
                     pet_options = dict(zip(pets_df['Name'], pets_df['PetID']))
@@ -194,20 +204,20 @@ with tab_update:
                 if not new_phone and not new_email:
                     st.warning("Please provide at least one field to update.")
                 else:
-                    # Build dynamic UPDATE query
-                    update_fields = []
+                    # Build UPDATE query with explicit field mapping for safety
                     params = []
                     
-                    if new_phone:
-                        update_fields.append("Phone_no = %s")
-                        params.append(new_phone)
-                    if new_email:
-                        update_fields.append("Email = %s")
-                        params.append(new_email)
+                    # Use conditional logic to build query safely
+                    if new_phone and new_email:
+                        query = "UPDATE OWNERS SET Phone_no = %s, Email = %s WHERE OwnerID = %s"
+                        params = [new_phone, new_email, owner_id_update]
+                    elif new_phone:
+                        query = "UPDATE OWNERS SET Phone_no = %s WHERE OwnerID = %s"
+                        params = [new_phone, owner_id_update]
+                    else:  # new_email only
+                        query = "UPDATE OWNERS SET Email = %s WHERE OwnerID = %s"
+                        params = [new_email, owner_id_update]
                     
-                    params.append(owner_id_update)
-                    
-                    query = f"UPDATE OWNERS SET {', '.join(update_fields)} WHERE OwnerID = %s"
                     result = db.run_execute(query, tuple(params))
                     
                     if result['success']:
@@ -272,22 +282,20 @@ with tab_update:
                 if not update_date and not update_status:
                     st.warning("Please select at least one field to update.")
                 else:
-                    # Build dynamic UPDATE query
-                    update_fields = []
+                    # Build UPDATE query with explicit field mapping for safety
                     params = []
                     
-                    if update_date:
-                        update_fields.append("Date = %s")
-                        update_fields.append("Time = %s")
-                        params.append(new_date)
-                        params.append(new_time)
-                    if update_status:
-                        update_fields.append("Status = %s")
-                        params.append(new_status)
+                    # Use conditional logic to build query safely
+                    if update_date and update_status:
+                        query = "UPDATE APPOINTMENTS SET Date = %s, Time = %s, Status = %s WHERE AppointmentID = %s"
+                        params = [new_date, new_time, new_status, appt_id_update]
+                    elif update_date:
+                        query = "UPDATE APPOINTMENTS SET Date = %s, Time = %s WHERE AppointmentID = %s"
+                        params = [new_date, new_time, appt_id_update]
+                    else:  # update_status only
+                        query = "UPDATE APPOINTMENTS SET Status = %s WHERE AppointmentID = %s"
+                        params = [new_status, appt_id_update]
                     
-                    params.append(appt_id_update)
-                    
-                    query = f"UPDATE APPOINTMENTS SET {', '.join(update_fields)} WHERE AppointmentID = %s"
                     result = db.run_execute(query, tuple(params))
                     
                     if result['success']:
